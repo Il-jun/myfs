@@ -9,6 +9,19 @@ typedef struct inode{
 	int  * p;//사용되는 데이터 블록 확인
 }inode; // inode를 위한 구조체 선언
 
+typedef struct ilist{
+	inode * ptr;
+	struct ilist * next;
+}ilist;
+
+ilist il;
+
+void addilist (inode * i){
+	ilist * ptr = malloc(sizeof(ilist));
+	il.next = ptr;
+	ptr -> ptr = i;
+}
+
 int makeinode (inode * i, _Bool k, int num, int use){//만들고자 하는 inode, 종류, 저장될 데이터블록 시작점, 몇개 사용할 것인지
 	i -> p = calloc(use, sizeof(int)); //사용되는 데이터블럭 동적 할당
 	i -> kind = k; //종류 저장
@@ -16,6 +29,7 @@ int makeinode (inode * i, _Bool k, int num, int use){//만들고자 하는 inode
 	for (int j = 0; j<use; j++){
 		i->p[j] = (num+1+j);//data블록에 순차적으로 저장
 	}
+	addilist(i);
 	return (num+use+1);//다음 저장될 곳 리턴
 }
 
