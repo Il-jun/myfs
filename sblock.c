@@ -110,14 +110,3 @@ int set_sblock (_Bool kind, int num){ //0이면 데이터, 1이면 inode
 		}
 	}
 }
-
-int main(){
-	int num, kind, s;
-	printf("inode = %d, datablock = %d\n", super.inode1, super.data1);
-	scanf ("%d %d", &num, &kind);
-	s = set_sblock(kind, num);
-	if (s == -1)
-		printf("error");
-	else
-		printf("inode = %d, datablock = %d", super.inode1, super.data1);	
-}
