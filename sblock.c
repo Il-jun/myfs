@@ -1,112 +1,56 @@
 #include <stdio.h>
 #include "func.h"
 #include "struct.h"
+#define INODE 1
+#define DBLOCK 0
 
-static sblock super;
+void print_sblock (){
+	FILE * sb;
+	sb = fopen("superblock", "rb");
+	rewind(sb);
+	unsigned ch;
+	for (char i = 0; i<12; i++){
+		fread (&ch, sizeof(unsigned), 1, sb);
+		printf ("%d ", ch);
+	}
+	printf ("\n");
+	fclose(sb);
+}
 
-int set_sblock (_Bool kind, int num){ //0이면 데이터, 1이면 inode
-	unsigned int mask = 1;
-	int di32 = num/32;
-	int di32_rest = (num%32)-1;
-	
-	if (kind){ // inode면 실행
-		if (di32 == 0){
-			if (super.inode1 & mask<<di32_rest)
-				return -1;//자리가 이미 채워져 있음
-			else {
-				super.inode1 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 1){
-			if (super.inode2 & mask<<di32_rest)
-				return -1;//자리가 이미 채워져 있음
-			else {
-				super.inode2 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 2){
-			if (super.inode3 & mask<<di32_rest)
-				return -1;//자리가 이미 채워져 있음
-			else {
-				super.inode3 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 3){
-			if (super.inode4 & mask<<di32_rest)
-				return -1;//자리가 이미 채워져 있음
-			else {
-				super.inode4 |= mask<<di32_rest;
-				return 0;
-			}
-		}
+void set_sblock (_Bool kind, int num){ //0이면 데이터, 1이면 inode
+	FILE * sb;
+	unsigned mask = 1 << (sizeof(unsigned) * 8) - (num%32) - 1;
+	print_sblock();
+	sb = fopen("superblock", "rb+"); // 이진파일 열기
+	rewind(sb); // 파일위치 지시자 맨앞으로
+	fseek (sb, (num/32) * 4, SEEK_CUR);
+	if (kind == INODE){ // inode면 맨앞부터 쓰기
+		fwrite (&mask, sizeof(unsigned), 1, sb);
+		fclose(sb);	
+	}
+	else { // 데이터블록 차지한거 표시
+		fseek(sb, 16, SEEK_CUR);
+		fwrite(&mask, sizeof(unsigned), 1, sb);
+		fclose(sb);
+		printf("yes\n");
+	}
+	print_sblock();
+}
+
+void make_sblock (){
+	static sblock super;
+	FILE * sb;
+	if ((sb = fopen("superblock", "rb")) == NULL){
+		sb = fopen("superblock", "wb");
+		rewind(sb);
+		unsigned zero = 0;
+		for (char i = 0; i<12; i++)
+			fwrite(&zero, sizeof(unsigned), 1, sb);
 	}
 	else{
-		if (di32 == 0) {
-			if (super.data1 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data1 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 1) {
-			if (super.data2 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data2 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 2) {
-			if (super.data3 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data3 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 3) {
-			if (super.data4 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data4 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 4) {
-			if (super.data5 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data5 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 5) {
-			if (super.data6 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data6 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 6) {
-			if (super.data7 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data7 |= mask<<di32_rest;
-				return 0;
-			}
-		}
-		if (di32 == 7) {
-			if (super.data8 & mask<<di32_rest)
-		   		return -1;
-			else{
-				super.data8 |= mask<<di32_rest;
-				return 0;
-			}
-		}
+		remove("superblock");
+		make_sblock();
 	}
+	fclose (sb);
 }
+
