@@ -15,4 +15,15 @@ typedef struct sblock{
 	unsigned inode1 : 32, inode2 : 32, inode3 : 32, inode4 : 32;
 	unsigned data1 : 32, data2 : 32, data3 : 32, data4 : 32, data5 : 32, data6 : 32, data7 : 32, data8 : 32;
 }sblock;
+
+typedef struct pwd_list {
+	char * name;
+	struct pwd_list * next;
+} pwd_list;
+
+typedef struct stack {
+	char s;
+	int top;
+} stack;
+
 #endif
