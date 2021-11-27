@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <stdbool.h>
 
@@ -48,12 +49,14 @@ inode mkfirstinode(void) // 루트디렉터리 생성;
 	inode * root = (inode *)malloc(sizeof(inode));
 	root -> inode_num = 1;
 	root -> type = 0;
-	root -> filename = "root";
+	root -> filename = malloc (sizeof(char) * 5); // root 이름 저장을 위한 메모리 할당
+	strcpy(root -> filename, "root"); // root 이름 저장
 	root -> time_ = time(NULL);
 	root -> iptr = NULL;
 
 	fwrite((void*)&root, sizeof(inode), 1, fp);
 	fclose(fp);
+	return (*root); // 저장한 inode값 반환
 }
 
 int main(void)
@@ -77,6 +80,5 @@ int makeinode (inode * i, int num, int use){//만들고자 하는 inode, 종류,
 	}
 	return (num+use+1);//다음 저장될 곳 리턴
 }
-
 int find_empty_inode (){
 */
