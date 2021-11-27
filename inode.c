@@ -36,7 +36,6 @@ typedef struct inode{
 	direct_data * ddata7;
 	direct_data * ddata8;
 	indirect_data * idata;
-	struct inode *iptr;
 
 }inode; // inode를 위한 구조체 선언
 
@@ -71,20 +70,42 @@ inode mkfirstinode(void) // 루트디렉터리 생성;
 	strcpy(root -> filename, "root"); // root 이름 저장
 	root -> time_ = malloc(sizeof(char) * 20);
 	root -> time_ = set_time();
-	root -> iptr = NULL;
 
 	fwrite((void*)&root, sizeof(inode), 1, fp);
 	fclose(fp);
 	return (*root); // 저장한 inode값 반환
 }
 
+inode mkinode(int inode_num, _Bool type, char * filename)
+{
+	FILE * fp;
+
+	fp = fopen("inode.bin", "ab");
+
+	inode * mkinode = (inode *)malloc(sizeof(inode));
+	mkinode -> inode_num = inode_num;
+	mkinode -> type = type;
+	mkinode -> filename = malloc(sizeof(char) * 7);
+	strcpy(mkinode -> filename, filename);
+	mkinode -> time_ = malloc(sizeof(char) * 20);
+	mkinode -> time_ = set_time();
+
+	fwrite((void*)&mkinode, sizeof(inode), 1, fp);
+	fclose(fp);
+	return (*mkinode);
+}
+	
+
+
 int main(void)
 {
-	inode check;
+	inode checkroot, checkmkinode;
+	char * check_fname = "hi";  //생성할 파일 이름
+	checkroot = mkfirstinode();
+	checkmkinode = mkinode(3,1,check_fname);
 
-	check = mkfirstinode();
-
-	printf("%d %d %s %s", check.inode_num, check.type, check.filename, check.time_);
+	printf("루트 정보 / inode번호 : %d inode type : %d 파일 이름 : %s 생성 시간 %s\n", checkroot.inode_num, checkroot.type, checkroot.filename, checkroot.time_);
+	printf("추가할 inode 정보 / inode번호 : %d inode type : %d 파일 이름 : %s 생성 시간 : %s\n", checkmkinode.inode_num, checkmkinode.type, checkmkinode.filename, checkmkinode.time_);
 
 }
 
