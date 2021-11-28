@@ -34,7 +34,10 @@ void scan_comm (char ** comm1, char ** comm2, char ** comm3) {
 			continue;
 		}
 		if (temp[0] == '\n') {
-			*comm3 = p_str;
+			if (comm_num == 2)
+				*comm2 = p_str;
+			if (comm_num == 3)
+				*comm3 = p_str;
 			break;
 		}
 			
@@ -52,7 +55,6 @@ void scan_comm (char ** comm1, char ** comm2, char ** comm3) {
 void cmp_comm (char * comm1, char * comm2, char * comm3) {
 	if (!strcmp(comm1, "myfs"))
 		//make_fs();
-		printf("1\n");
 	if (!strcmp(comm1, "myls"))
 		//show_ls();
 	if (!strcmp(comm1, "mycat"))
