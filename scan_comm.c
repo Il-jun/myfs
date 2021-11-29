@@ -3,13 +3,6 @@
 #include <string.h>
 #include "func.h"
 
-int main () {
-	char * comm1 = NULL, * comm2 = NULL, * comm3 = NULL;
-	scan_comm(&comm1, &comm2, &comm3);
-	printf ("%s %s %s\n", comm1, comm2, comm3);
-	cmp_comm(comm1, comm2, comm3);
-}
-
 void scan_comm (char ** comm1, char ** comm2, char ** comm3) {
 	char *temp;
 	char *p_str = NULL;
@@ -34,6 +27,8 @@ void scan_comm (char ** comm1, char ** comm2, char ** comm3) {
 			continue;
 		}
 		if (temp[0] == '\n') {
+			if (comm_num == 1)
+				*comm1 = p_str;
 			if (comm_num == 2)
 				*comm2 = p_str;
 			if (comm_num == 3)

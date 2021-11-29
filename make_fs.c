@@ -1,29 +1,29 @@
 #include <stdio.h>
-#include "struct.h"
+#include <stdlib.h>
+#include <string.h>
 
 void make_fs(){
 	FILE * myfs;
-	if ((myfs = fopen("myfs", "rb")) == NULL) { //myfs가 존재하지 않음
+	myfs = fopen("myfs", "rb");
+	if (myfs == NULL) { //myfs가 존재하지 않음
 		printf("파일시스템이 없습니다. 파일시스템을 만듭니다.\n");
 		myfs = fopen("myfs", "wb");
-		//make_dir("root");
 	}
 	else {
-		char ch;
-		printf("파일시스템이 있습니다. 다시 만들겠습니까? (y/n)");
+		char *  ch;
+		ch = malloc (sizeof(char));
+		printf("파일시스템이 있습니다. 다시 만들겠습니까? (y/n) : ");
 		do {
-		scanf("%c", &ch);
-		if (ch == 'y' || ch == 'n' || ch == 'Y' || ch == 'N')
-			break;
+			scanf("%s", ch);
+			getchar();
+			if (strcmp(ch, "y") || strcmp(ch, "n"))
+				break;
 		} while (1);
-		if (ch == 'y' || ch == 'Y'){
+		if (strcmp(ch, "y")){
 			fclose(myfs);
 			remove("myfs");
 			myfs = fopen("myfs", "wb");
-			//make_dir("root");
+			fclose(myfs);
 		}
 	}
-}
-int main (){
-	make_fs();
 }

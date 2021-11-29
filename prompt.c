@@ -4,8 +4,8 @@
 #include "func.h"
 #include "struct.h"
 
-pwd_list * path_list;
-pwd_list * b_path;
+static pwd_list * path_list;
+static pwd_list * b_path;
 
 void print_prompt (){ // 프롬프트 출력
 	pwd_list * pre_path = path_list -> next;
@@ -19,6 +19,18 @@ void print_prompt (){ // 프롬프트 출력
 			printf("/");
 	}
 	printf(" ]$ ");
+}
+
+void print_pwd (){ // 현재경로 출력
+	pwd_list * pre_path = path_list -> next;
+	while (1) {
+		if (pre_path == NULL)
+			break;
+		printf("%s", pre_path ->name);
+		pre_path = pre_path -> next;
+		if (pre_path != NULL)
+			printf("/");
+	}
 }
 
 void set_root_path (){ // 루트디렉토리 지정
@@ -35,15 +47,4 @@ void set_next_path (char * name){ // 다음 디렉토리 지정
 	strcpy(n_path -> name, name);
 	b_path -> next = n_path;
 	b_path = n_path;
-}
-
-int main (){
-	char name[7];
-	set_root_path();
-	print_prompt();
-	for (int i = 0; i<3; i++){
-		scanf("%s", &name);
-		set_next_path (name);
-		print_prompt();
-	}
 }
