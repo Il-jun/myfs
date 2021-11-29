@@ -4,7 +4,7 @@
 #define STRUCT_H
 #endif
 
-int make_fs ();
+void make_fs ();
 void print_shell();
 void op_comm(char *);
 int make_inode (inode *, _Bool, int, int);
