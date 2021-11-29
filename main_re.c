@@ -9,7 +9,7 @@ pwd_list * path_list;
 pwd_list * b_path;
 
 int main (){
-	make_fs();
+	//make_fs();
 	set_root_path();
 	print_prompt ();
 	do {
