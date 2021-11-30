@@ -1,56 +1,389 @@
-#include <stdio.h>
-#include "func.h"
-#include "struct.h"
+#include "header.h"
 #define INODE 1
 #define DBLOCK 0
 
-void print_sblock (){
-	FILE * sb;
-	sb = fopen("superblock", "rb");
-	rewind(sb);
-	unsigned ch;
-	for (char i = 0; i<12; i++){
-		fread (&ch, sizeof(unsigned), 1, sb);
-		printf ("%d ", ch);
-	}
-	printf ("\n");
-	fclose(sb);
+typedef struct sblock{
+	unsigned inode1 : 32, inode2 : 32, inode3 : 32, inode4 : 32;
+	unsigned data1 : 32, data2 : 32, data3 : 32, data4 : 32, data5 : 32, data6 : 32, data7 : 32, data8 : 32;
+}sblock;
+
+void mkfirst_sblock(void){ //mkfs 와 함께 호출
+	sblock tmp = {0x80000000,0};
+
+	FILE * fp;
+	fp = fopen("superblock.bin","wb");
+
+	fwrite((void*)&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
 }
 
-void set_sblock (_Bool kind, int num){ //0이면 데이터, 1이면 inode
-	FILE * sb;
-	unsigned mask = 1 << (sizeof(unsigned) * 8) - (num%32) - 1;
-	print_sblock();
-	sb = fopen("superblock", "rb+"); // 이진파일 열기
-	rewind(sb); // 파일위치 지시자 맨앞으로
-	fseek (sb, (num/32) * 4, SEEK_CUR);
-	if (kind == INODE){ // inode면 맨앞부터 쓰기
-		fwrite (&mask, sizeof(unsigned), 1, sb);
-		fclose(sb);	
+void add_sblock_inode(int inode_num) // 인자로 추가할 inode 번호
+{
+	sblock tmp;
+	int inode_a = 0;
+	int inode_b = 0;
+	unsigned mask;
+
+	inode_a = (inode_num / 32) + 1;
+	inode_b = inode_num % 32;	
+
+	mask = 1 << (32 - inode_b);
+
+	FILE * fp;
+
+	fp = fopen("superblock.bin","rb");
+	rewind(fp);
+
+	fread(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+
+	switch(inode_a){
+		case 1 :
+			tmp.inode1 = (tmp.inode1 | mask);
+			break;
+		case 2 :
+			tmp.inode2 = (tmp.inode2 | mask);
+			break;
+		case 3 :
+			tmp.inode3 = (tmp.inode3 | mask);
+			break;
+		case 4 :
+			tmp.inode4 = (tmp.inode4 | mask);
+			break;
 	}
-	else { // 데이터블록 차지한거 표시
-		fseek(sb, 16, SEEK_CUR);
-		fwrite(&mask, sizeof(unsigned), 1, sb);
-		fclose(sb);
-		printf("yes\n");
-	}
-	print_sblock();
+
+	fp = fopen("superblock.bin", "wb");
+	rewind(fp);
+
+	fwrite(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+
 }
 
-void make_sblock (){
-	static sblock super;
-	FILE * sb;
-	if ((sb = fopen("superblock", "rb")) == NULL){
-		sb = fopen("superblock", "wb");
-		rewind(sb);
-		unsigned zero = 0;
-		for (char i = 0; i<12; i++)
-			fwrite(&zero, sizeof(unsigned), 1, sb);
+void rm_sblock_inode(int inode_num) // 인자로 삭제할 inode 번호
+{
+	sblock tmp;
+	int inode_a = 0;
+	int inode_b = 0;
+	unsigned mask;
+
+	inode_a = (inode_num / 32) + 1;
+	inode_b = inode_num % 32;
+
+	mask = 1 << (32 - inode_b);
+
+	FILE * fp;
+
+	fp = fopen("superblock.bin","rb");
+	rewind(fp);
+
+	fread(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+
+	switch(inode_a){
+		case 1 :
+			tmp.inode1 = (tmp.inode1 ^ mask);
+			break;
+		case 2 :
+			tmp.inode2 = (tmp.inode2 ^ mask);
+			break;
+		case 3 :
+			tmp.inode3 = (tmp.inode3 ^ mask);
+			break;
+		case 4 :
+			tmp.inode4 = (tmp.inode4 ^ mask);
+			break;
 	}
-	else{
-		remove("superblock");
-		make_sblock();
+
+	fp = fopen("superblock.bin", "wb");
+	rewind(fp);
+
+	fwrite(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+
+}
+
+
+
+int count_used_inode(void)
+{
+	sblock tmp;
+	unsigned mask = 1 << 31;
+	int used_inode = 0;
+	int i;
+
+	FILE * fp;
+	fp = fopen("superblock.bin", "rb");
+	rewind(fp);
+
+	fread(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.inode1 & mask) != 0)
+			++used_inode;
+		mask >>= 1;
 	}
-	fclose (sb);
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.inode2 & mask) != 0)
+			++used_inode;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.inode3 & mask) != 0)
+			++used_inode;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.inode4 & mask) != 0)
+			++used_inode;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	return used_inode;
+}
+
+int count_used_data(void)
+{
+	sblock tmp;
+	unsigned mask = 1 << 31;
+	int used_data = 0;
+	int i;
+
+	FILE * fp;
+	fp = fopen("superblock.bin", "rb");
+	rewind(fp);
+
+	fread(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data1 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data2 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data3 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data4 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data5 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data6 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data7 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if((tmp.data8 & mask) != 0)
+			++used_data;
+		mask >>= 1;
+	}
+	mask = 1 << 31;
+
+	return used_data;
+}
+
+
+
+
+
+
+
+void mystate(void)
+{
+	sblock tmp;
+	unsigned mask = 1 << 31;
+	int used_inode = count_used_inode();
+	int used_data = count_used_data();
+	int i;
+
+
+	FILE * fp;
+	fp = fopen("superblock.bin","rb");
+	rewind(fp);
+
+	fread(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+
+	printf("Inode state :\n");
+	printf("    Total : 128\n");
+	printf("    Used : %d\n", used_inode);
+	printf("    Available : %d\n", 128 - used_inode);
+
+	printf("    Inode Map :\n     ");
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.inode1 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.inode2 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+
+	}
+	printf("\n     ");
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.inode3 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.inode4 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+
+	}
+	printf("\n");
+	mask = 1 << 31;
+
+	printf("Data Block state :\n");
+	printf("    Total : 256 blocks / %d byte\n", 256 * 256);
+	printf("    Used : %d blocks / %d byte\n", used_data, used_data * 256);
+	printf("    Available : %d blocks / %d byte\n", 128 - used_data, (256 - used_data) * 256);
+
+	printf("    Inode Map :\n     ");
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data1 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data2 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	printf("\n     ");
+	mask = 1 << 31;
+
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data3 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data4 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	printf("\n     ");
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data5 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data6 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	printf("\n     ");
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data7 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		putchar(((tmp.data8 & mask) == 0) ? '0' : '1');
+		mask >>=1;
+		if(i % 4 == 0)
+			putchar(' ');
+	}
+	printf("\n");
+	mask = 1 << 31;
+
+}
+
+
+
+
+
+int main(void)
+{
+
+	mkfirst_sblock();
+	add_sblock_inode(3);
+	add_sblock_inode(4);
+	add_sblock_inode(5);
+	rm_sblock_inode(3);
+	mystate();
 }
 
