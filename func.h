@@ -14,6 +14,8 @@ void print_prompt ();
 void print_pwd ();
 void set_root_path ();
 void set_next_path (char *);
+void cd_path (char *);
+
 void cmp_comm (char *, char *, char *);
 void scan_comm (char **, char **, char **);
 
