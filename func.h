@@ -24,8 +24,10 @@ void show_ls ();
 void save_file_data (inode * );
 int get_size (char *);
 void load_file (inode );
+void mkfirst_sblock();
 
-int find_empty_datab (void)
+int find_empty_datab ();
+void add_sblock_inode(int);
 
 // stack 구현 함수
 void s_reset();

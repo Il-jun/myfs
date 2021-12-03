@@ -3,6 +3,15 @@
 #include "func.h"
 #include "struct.h"
 
+int main () {
+	inode i1;
+	i1.filename = malloc (sizeof(char) * 10);
+	i1.filename = "test.txt";
+	mkfirst_sblock();
+	save_file_data (&i1);
+	
+}
+
 void save_file_data (inode * i){
 	char ch;
 	char * temp;
@@ -19,6 +28,32 @@ void save_file_data (inode * i){
 			putc(ch, data_b);
 		}
 		add_sblock_inode(e_num);
+		switch (num) {
+			case 1 :
+				i -> data1 = e_num;
+				break;
+			case 2 :
+				i -> data2 = e_num;
+				break;
+			case 3 :
+				i -> data3 = e_num;
+				break;
+			case 4 :
+				i -> data4 = e_num;
+				break;
+			case 5 :
+				i -> data5 = e_num;
+				break;
+			case 6 :
+				i -> data6 = e_num;
+				break;
+			case 7 :
+				i -> data7 = e_num;
+				break;
+			case 8 :
+				i -> data8 = e_num;
+				break;
+		}
 		num++;
 		if (ch == EOF)
 			break;
@@ -35,7 +70,7 @@ void make_dir_data (inode * i) {
 }
 
 void load_file (inode i) {
-	
+	;
 }
 
 int get_size (char * file_name) {
