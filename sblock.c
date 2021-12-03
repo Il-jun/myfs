@@ -1,4 +1,8 @@
-#include "header.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
+#include <string.h>
 #define INODE 1
 #define DBLOCK 0
 
@@ -241,61 +245,61 @@ int find_empty_datab (void) {
 	fp = fopen("superblock.bin","rb");
 	rewind(fp);
 
-	fread(&tmp, sizeof(sblock), 1, fp);
+	fread(&temp, sizeof(sblock), 1, fp);
 
 	fclose(fp);
 	
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode1 & mask) == 0)
+		if ((temp.data1 & mask) == 0)
 			return i;
 		mask >>=1;
 	}
 
 	mask = 1 << 31;
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode2 & mask) == 0)
+		if ((temp.data2 & mask) == 0)
 			return i + 32;
 		mask >>=1;
 	}
 
 	mask = 1 << 31;
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode3 & mask) == 0)
+		if ((temp.data3 & mask) == 0)
 			return i + 64;
 		mask >>=1;
 	}
 	mask = 1 << 31;
 
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode4 & mask) == 0)
+		if ((temp.data4 & mask) == 0)
 			return i + 96;
 		mask >>=1;
 	}
 	mask = 1 << 31;
 
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode5 & mask) == 0)
+		if ((temp.data5 & mask) == 0)
 			return i + 128;
 		mask >>=1;
 	}
 
 	mask = 1 << 31;
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode6 & mask) == 0)
+		if ((temp.data6 & mask) == 0)
 			return i + 160;
 		mask >>=1;
 	}
 
 	mask = 1 << 31;
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode7 & mask) == 0)
+		if ((temp.data7 & mask) == 0)
 			return i + 192;
 		mask >>=1;
 	}
 	mask = 1 << 31;
 
 	for(i = 1; i <= 32; ++i){
-		if ((tmp.inode8 & mask) == 0)
+		if ((temp.data8 & mask) == 0)
 			return i + 224;
 		mask >>=1;
 	}
@@ -439,17 +443,3 @@ void mystate(void)
 
 }
 
-
-
-
-
-int main(void)
-{
-
-	mkfirst_sblock();
-	add_sblock_inode(3);
-	add_sblock_inode(4);
-	add_sblock_inode(5);
-	rm_sblock_inode(3);
-	mystate();
-}
