@@ -1,39 +1,5 @@
 #include "header.h"
-
-typedef struct direct_data{
-	char * file_contents;
-}direct_data;
-
-typedef struct indirect_data{
-	direct_data * ddata1;
-	direct_data * ddata2;
-	direct_data * ddata3;
-	direct_data * ddata4;
-	direct_data * ddata5;
-	direct_data * ddata6;
-	direct_data * ddata7;
-	direct_data * ddata8;
-}indirect_data;
-
-
-
-
-typedef struct inode{
-	int inode_num;
-	_Bool type;//디럭터리인지 파일인지 구분(디렉터리 = 0, 파일 = 1)
-	char * filename;   // 파일 이름 최대 7글자
-	char * time_;//만들어진 시간을 확인ㅑ
-	direct_data * ddata1;
-	direct_data * ddata2;
-	direct_data * ddata3;
-	direct_data * ddata4;
-	direct_data * ddata5;
-	direct_data * ddata6;
-	direct_data * ddata7;
-	direct_data * ddata8;
-	indirect_data * idata;
-
-}inode; // inode를 위한 구조체 선언
+#include "func.h"
 
 char * set_time(void) //시간설정함수
 {
@@ -135,8 +101,9 @@ void myinode(int inum) 	//인자 출력할 inode 번호
 }
 	
 
-void myls_0() //myls 인자 없을떄
+void myls_0(int num) //myls 인자 없을떄, 인자 디렉터리 내의 파일 수
 {
+
 }
 
 void myls_1(char * file_name) // myls로 파일이름 인자로 있을떄
@@ -156,10 +123,10 @@ void myls_1(char * file_name) // myls로 파일이름 인자로 있을떄
 	}
 	
 	if(tmp.type == 0)
-		printf("%s directory %5d []byte\n", tmp.time_, tmp.inode_num);
+		printf("%s directory %5d %dbyte\n", tmp.time_, tmp.inode_num, get_size(file_name));
 	
 	else if(tmp.type = 1)
-		printf("%s file      %5d []byte\n", tmp.time_, tmp.inode_num);
+		printf("%s file      %5d %dbyte\n", tmp.time_, tmp.inode_num, get_size(file_name));
 	
 	fclose(fp);	
 }
@@ -208,6 +175,8 @@ int main(void)
 	scanf("%s", b);
 	myls_1(b);
 
+//	printf("myls인자 없을떄\n");
+//	myls_0(3);
 
 }
 
