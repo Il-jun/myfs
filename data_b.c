@@ -3,30 +3,29 @@
 #include "func.h"
 #include "struct.h"
 
-direct_data temp_data;
-
-void save_data (char * file_name){
+void save_file_data (inode * i){
 	char ch;
-	int size;
-	FILE * sfile, * sdfile;
-	temp_data = malloc(256);
-	size = get_size (file_name);
-	sfile = fopen (file_name, "r");
-	rewind (sfile);
-	if (size >256) {
-		int file_num = size/256;
-		for (int i = 1; i <= file_num; i++) {
-			while (ftell != 256 * i){
-				ch = getc(sfile);
-				putc (ch, sdfile);
-			}
+	char * temp;
+	int num = 1;
+	FILE * data_b;
+	FILE * file = fopen(i->filename, "rb+");
+	temp = malloc(256);
+	data_b = fopen("datablock", "ab");
+	
+	while (num < 9) {
+		int e_num = find_empty_datab();
+		fseek(data_b, 256*e_num, 0);
+		while ((ch = getc(file)) != EOF && ftell(file) != 256*num) {
+			putc(ch, data_b);
 		}
+		add_sblock_inode(e_num);
+		num++;
+		if (ch == EOF)
+			break;
 	}
-	else {
-		
 }
 
-void load_file (char * file_name) {
+void load_file (inode i) {
 	
 }
 
