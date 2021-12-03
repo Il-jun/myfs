@@ -233,7 +233,74 @@ int count_used_data(void)
 
 
 
+int find_empty_datab (void) {
+	sblock temp;
+	unsigned mask = 1 << 31;
+	int i = 0;
+	FILE * fp;
+	fp = fopen("superblock.bin","rb");
+	rewind(fp);
 
+	fread(&tmp, sizeof(sblock), 1, fp);
+
+	fclose(fp);
+	
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode1 & mask) == 0)
+			return i;
+		mask >>=1;
+	}
+
+	mask = 1 << 31;
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode2 & mask) == 0)
+			return i + 32;
+		mask >>=1;
+	}
+
+	mask = 1 << 31;
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode3 & mask) == 0)
+			return i + 64;
+		mask >>=1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode4 & mask) == 0)
+			return i + 96;
+		mask >>=1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode5 & mask) == 0)
+			return i + 128;
+		mask >>=1;
+	}
+
+	mask = 1 << 31;
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode6 & mask) == 0)
+			return i + 160;
+		mask >>=1;
+	}
+
+	mask = 1 << 31;
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode7 & mask) == 0)
+			return i + 192;
+		mask >>=1;
+	}
+	mask = 1 << 31;
+
+	for(i = 1; i <= 32; ++i){
+		if ((tmp.inode8 & mask) == 0)
+			return i + 224;
+		mask >>=1;
+	}
+	mask = 1 << 31;
+}
 
 
 void mystate(void)
@@ -386,4 +453,3 @@ int main(void)
 	rm_sblock_inode(3);
 	mystate();
 }
-

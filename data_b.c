@@ -8,7 +8,7 @@ void save_file_data (inode * i){
 	char * temp;
 	int num = 1;
 	FILE * data_b;
-	FILE * file = fopen(i->filename, "rb+");
+	FILE * file = fopen(i->filename, "ab");
 	temp = malloc(256);
 	data_b = fopen("datablock", "ab");
 	
@@ -23,6 +23,15 @@ void save_file_data (inode * i){
 		if (ch == EOF)
 			break;
 	}
+}
+
+void make_dir_data (inode * i) {
+	char * temp;
+	FILE * data_b;
+	FILE * file = fopen(i->filename, "rb+");
+	temp = malloc(256);
+	data_b = fopen("datablock", "ab");
+	
 }
 
 void load_file (inode i) {

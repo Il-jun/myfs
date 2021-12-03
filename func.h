@@ -25,6 +25,8 @@ void save_file_data (inode * );
 int get_size (char *);
 void load_file (inode );
 
+int find_empty_datab (void)
+
 // stack 구현 함수
 void s_reset();
 void s_push(char c);
