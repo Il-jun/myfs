@@ -11,18 +11,6 @@ typedef struct sblock{
 	unsigned data1 : 32, data2 : 32, data3 : 32, data4 : 32, data5 : 32, data6 : 32, data7 : 32, data8 : 32;
 }sblock;
 
-typedef struct indirect{
-	int data1;
-	int data2;
-	int data3;
-	int data4;
-	int data5;
-	int data6;
-	int data7;
-	int data8;
-}
-
-
 typedef struct inode{
 	int inode_num;
 	_Bool type;//디럭터리인지 파일인지 구분(디렉터리 = 0, 파일 = 1)
@@ -34,9 +22,10 @@ typedef struct inode{
 	int data4;
 	int data5;
 	int data6;
-	int data7;
+	int data7 ;
 	int data8;
-	indirect * data;
+	int indata;
+	struct inode *iptr;
 
 }inode; // inode를 위한 구조체 선언
 

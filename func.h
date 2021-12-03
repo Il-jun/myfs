@@ -21,9 +21,9 @@ void scan_comm (char **, char **, char **);
 
 void show_ls ();
 
-void save_file_data (inode * );
+void save_file_data (int , char *);
 int get_size (char *);
-void load_file (inode );
+void load_file (int);
 void mkfirst_sblock();
 
 int find_empty_datab ();
